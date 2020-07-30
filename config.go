@@ -16,7 +16,7 @@ var (
 )
 
 func ReadConfig() error {
-	// Override config file location via environment variables
+	// Override config file location via environment variable
 	configFile := os.Getenv("CONFIG_FILE")
 	if configFile == "" {
 		userHome, err := homedir.Dir()
@@ -26,7 +26,7 @@ func ReadConfig() error {
 		configFile = filepath.Join(userHome, ".dbhub", "apiclient.toml")
 	}
 
-	// Reads the server configuration from disk
+	// Read the server configuration from disk
 	if _, err := toml.DecodeFile(configFile, &Conf); err != nil {
 		return fmt.Errorf("Config file couldn't be parsed: %v\n", err)
 	}
