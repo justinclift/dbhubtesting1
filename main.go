@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/sqlitebrowser/go-dbhub"
@@ -31,6 +32,27 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("Query results: %v\n", r) // TODO: Format this a bit better
+	fmt.Println()
 
-	log.Printf("Results: %v\n", r)
+	// Retrieve the list of tables in the remote database
+	tables, err := db.Tables("justinclift", "Join Testing.sqlite")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Tables:")
+	for _, j := range tables {
+		fmt.Printf("  * %s\n", j)
+	}
+	fmt.Println()
+
+	// Retrieve the list of views in the remote database
+	views, err := db.Views("justinclift", "Join Testing.sqlite")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Views:")
+	for _, j := range views {
+		fmt.Printf("  * %s\n", j)
+	}
 }
