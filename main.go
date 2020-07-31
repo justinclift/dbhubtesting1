@@ -55,4 +55,16 @@ func main() {
 	for _, j := range views {
 		fmt.Printf("  * %s\n", j)
 	}
+	fmt.Println()
+
+	// Retrieve the list of indexes in the remote database
+	indexes, err := db.Indexes("justinclift", "Join Testing.sqlite")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Indexes:")
+	for i, j := range indexes {
+		fmt.Printf("  * '%s' on table '%s'\n", i, j)
+	}
+	fmt.Println()
 }
