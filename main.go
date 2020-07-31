@@ -24,7 +24,8 @@ func main() {
 	}
 
 	// Query the remote server
-	r, err := db.Query("justinclift", "Join Testing.sqlite",
+	// FIXME: Add a (reasonable) test for blob values
+	r, err := db.Query("justinclift", "Join Testing.sqlite", false,
 		`SELECT table1.Name, table2.value
 			FROM table1 JOIN table2
 			USING (id)
