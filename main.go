@@ -87,4 +87,20 @@ func main() {
 		fmt.Printf("      Primary Key: %v\n", j.Pk)
 	}
 	fmt.Println()
+
+	// Generate and display diff for two commits of the remote database
+	diffs, err := db.Diff("justinclift", "Join Testing.sqlite", "c82ba65add364427e9af3f540be8bf98e8cd6bdb825b07c334858e816c983db0", "", "", "adf78104254ece17ff40dab80ae800574fa5d429a4869792a64dcf2027cd9cd9", dbhub.PreservePkMerge)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("SQL statements for turning the first commit into the second:\n")
+	for _, i := range diffs.Diff {
+		if i.Schema != nil {
+			fmt.Printf("%s\n", i.Schema.Sql)
+		}
+		for _, j := range i.Data {
+			fmt.Printf("%s\n", j.Sql)
+		}
+	}
+	fmt.Println()
 }
