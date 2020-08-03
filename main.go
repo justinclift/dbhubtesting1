@@ -25,7 +25,7 @@ func main() {
 
 	// Query the remote server
 	// FIXME: Add a (reasonable) test for blob values
-	r, err := db.Query("justinclift", "Join Testing.sqlite", false,
+	r, err := db.Query("justinclift", "Join Testing.sqlite", dbhub.Identifier{}, false,
 		`SELECT table1.Name, table2.value
 			FROM table1 JOIN table2
 			USING (id)
@@ -37,7 +37,7 @@ func main() {
 	fmt.Println()
 
 	// Retrieve the list of tables in the remote database
-	tables, err := db.Tables("justinclift", "Join Testing.sqlite")
+	tables, err := db.Tables("justinclift", "Join Testing.sqlite", dbhub.Identifier{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +48,7 @@ func main() {
 	fmt.Println()
 
 	// Retrieve the list of views in the remote database
-	views, err := db.Views("justinclift", "Join Testing.sqlite")
+	views, err := db.Views("justinclift", "Join Testing.sqlite", dbhub.Identifier{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func main() {
 	fmt.Println()
 
 	// Retrieve the list of indexes in the remote database
-	indexes, err := db.Indexes("justinclift", "Join Testing.sqlite")
+	indexes, err := db.Indexes("justinclift", "Join Testing.sqlite", dbhub.Identifier{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,7 +71,7 @@ func main() {
 
 	// Retrieve the column info for a table or view in the remote database
 	table := "table1"
-	columns, err := db.Columns("justinclift", "Join Testing.sqlite", table)
+	columns, err := db.Columns("justinclift", "Join Testing.sqlite", dbhub.Identifier{}, table)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -89,7 +89,9 @@ func main() {
 	fmt.Println()
 
 	// Generate and display diff for two commits of the remote database
-	diffs, err := db.Diff("justinclift", "Join Testing.sqlite", "c82ba65add364427e9af3f540be8bf98e8cd6bdb825b07c334858e816c983db0", "", "", "adf78104254ece17ff40dab80ae800574fa5d429a4869792a64dcf2027cd9cd9", dbhub.PreservePkMerge)
+	diffs, err := db.Diff("justinclift", "Join Testing.sqlite",
+		dbhub.Identifier{CommitID: "c82ba65add364427e9af3f540be8bf98e8cd6bdb825b07c334858e816c983db0"}, "", "",
+		dbhub.Identifier{CommitID: "adf78104254ece17ff40dab80ae800574fa5d429a4869792a64dcf2027cd9cd9"}, dbhub.PreservePkMerge)
 	if err != nil {
 		log.Fatal(err)
 	}
