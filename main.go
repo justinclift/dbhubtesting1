@@ -24,6 +24,18 @@ func main() {
 		db.ChangeServer(Conf.Api.Server) // If a server was given in our local config, use that instead of the default
 	}
 
+	// Retrieve the list of databases in your account
+	databases, err := db.Databases()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Databases:")
+	for _, j := range databases {
+		fmt.Printf("  * %s\n", j)
+	}
+	fmt.Println()
+
 	// Query the remote server
 	// FIXME: Add a (reasonable) test for blob values
 	r, err := db.Query("justinclift", "Join Testing.sqlite", dbhub.Identifier{}, false,
