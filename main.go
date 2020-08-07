@@ -77,8 +77,8 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("Indexes:")
-	for i, j := range indexes {
-		fmt.Printf("  * '%s' on table '%s'\n", i, j)
+	for _, j := range indexes {
+		fmt.Printf("  * '%s' on table '%s'\n", j.Name, j.Table)
 	}
 	fmt.Println()
 
