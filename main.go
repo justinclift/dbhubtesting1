@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/sqlitebrowser/go-dbhub"
 )
@@ -22,23 +24,78 @@ func main() {
 	}
 	if Conf.Api.Server != "" {
 		db.ChangeServer(Conf.Api.Server) // If a server was given in our local config, use that instead of the default
+		db.ChangeVerifyServerCert(false)
 	}
 
-	// Retrieve the list of databases in your account
+	// Retrieve the list of standard databases in your account
 	databases, err := db.Databases()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Databases:")
+	fmt.Println("Standard databases:")
 	for _, j := range databases {
 		fmt.Printf("  * %s\n", j)
 	}
 	fmt.Println()
 
+	// Retrieve the list of LIVE databases in your account
+	liveDatabases, err := db.DatabasesLive()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Live databases:")
+	for _, j := range liveDatabases {
+		fmt.Printf("  * %s\n", j)
+	}
+	fmt.Println()
+
+	// Read a test database into memory, ready for uploading as we need
+	z, err := os.Open(filepath.Join("test_data", "Join Testing with index.sqlite"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer z.Close()
+	testDB, err := io.ReadAll(z)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Upload a standard database for doing stuff with
+	dbName := "Upload STANDARD test.sqlite"
+	for _, j := range databases {
+		if j == dbName {
+			// If the database already exists in the account, then remove it first
+			err = db.Delete(dbName)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+	err = db.Upload(dbName, dbhub.UploadInformation{}, &testDB)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Upload the test database as a LIVE database
+	liveName := "Upload LIVE test.sqlite"
+	for _, j := range liveDatabases {
+		if j == liveName {
+			// If the database already exists in the account, then remove it first
+			err = db.Delete(liveName)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+	err = db.UploadLive(liveName, &testDB)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Query the remote server
 	// FIXME: Add a (reasonable) test for blob values
-	r, err := db.Query("justinclift", "Join Testing.sqlite", dbhub.Identifier{}, false,
+	r, err := db.Query("default", dbName, dbhub.Identifier{}, false,
 		`SELECT table1.Name, table2.value
 			FROM table1 JOIN table2
 			USING (id)
@@ -49,8 +106,8 @@ func main() {
 	fmt.Printf("Query results: %v\n", r) // TODO: Format this a bit better
 	fmt.Println()
 
-	// Retrieve the list of tables in the remote database
-	tables, err := db.Tables("justinclift", "Join Testing.sqlite", dbhub.Identifier{})
+	// Retrieve the list of tables in a remote standard database
+	tables, err := db.Tables("default", dbName, dbhub.Identifier{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -60,8 +117,8 @@ func main() {
 	}
 	fmt.Println()
 
-	// Retrieve the list of views in the remote database
-	views, err := db.Views("justinclift", "Join Testing.sqlite", dbhub.Identifier{})
+	// Retrieve the list of views in the remote standard database
+	views, err := db.Views("default", dbName, dbhub.Identifier{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,8 +128,8 @@ func main() {
 	}
 	fmt.Println()
 
-	// Retrieve the list of indexes in the remote database
-	indexes, err := db.Indexes("justinclift", "Join Testing.sqlite", dbhub.Identifier{})
+	// Retrieve the list of indexes in the remote standard database
+	indexes, err := db.Indexes("default", dbName, dbhub.Identifier{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -82,18 +139,16 @@ func main() {
 	}
 	fmt.Println()
 
-	// Retrieve the column info for a table or view in the remote database
+	// Retrieve the column info for a table or view in the remote standard database
 	table := "table1"
-	columns, err := db.Columns("justinclift", "Join Testing.sqlite", dbhub.Identifier{}, table)
+	columns, err := db.Columns("default", dbName, dbhub.Identifier{}, table)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("Columns on table or view '%s':\n", table)
 	for _, j := range columns {
 		fmt.Printf("  * '%v':\n", j.Name)
-		fmt.Printf("      Autoincrement: %v\n", j.Autoinc)
 		fmt.Printf("      Cid: %v\n", j.Cid)
-		fmt.Printf("      Collation Sequence: %v\n", j.CollSeq)
 		fmt.Printf("      Data Type: %v\n", j.DataType)
 		fmt.Printf("      Default Value: %v\n", j.DfltValue)
 		fmt.Printf("      Not Null: %v\n", j.NotNull)
@@ -101,40 +156,40 @@ func main() {
 	}
 	fmt.Println()
 
-	// Generate and display diff for two commits of the remote database
-	diffs, err := db.Diff("justinclift", "Join Testing.sqlite",
-		dbhub.Identifier{CommitID: "c82ba65add364427e9af3f540be8bf98e8cd6bdb825b07c334858e816c983db0"}, "", "",
-		dbhub.Identifier{CommitID: "adf78104254ece17ff40dab80ae800574fa5d429a4869792a64dcf2027cd9cd9"}, dbhub.PreservePkMerge)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("SQL statements for turning the first commit into the second:\n")
-	for _, i := range diffs.Diff {
-		if i.Schema != nil {
-			fmt.Printf("%s\n", i.Schema.Sql)
-		}
-		for _, j := range i.Data {
-			fmt.Printf("%s\n", j.Sql)
-		}
-	}
-	fmt.Println()
-
-	// Retrieve the remote database file
-	dbName := "Join Testing.sqlite"
-	dbStream, err := db.Download("justinclift", dbName, dbhub.Identifier{})
+	// Retrieve the remote standard database file
+	dbStream, err := db.Download("default", dbName, dbhub.Identifier{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Save the database file in the current directory
-	buf, err := ioutil.ReadAll(dbStream)
+	// Save the standard database file in the current directory
+	buf, err := io.ReadAll(dbStream)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = ioutil.WriteFile(dbName, buf, 0644)
+	err = os.WriteFile(dbName, buf, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("Saved database file as '%s'\n", dbName)
 	fmt.Println()
+	if y, err := os.Stat(dbName); err != nil || y.Size() != 16384 {
+		log.Fatal(err)
+	}
+	if err = os.Remove(dbName); err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Deleted downloaded file")
+
+	// TODO: Run Execute() on the remote live database
+
+	// Remove the uploaded files
+	err = db.Delete(dbName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = db.Delete(liveName)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
