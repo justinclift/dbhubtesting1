@@ -9,5 +9,6 @@ type TomlConfig struct {
 type ApiInfo struct {
 	APIKey     string `toml:"api_key"`
 	Server     string `toml:"server"`
+	User       string `toml:"user"`
 	VerifyCert bool   `toml:"verify_cert"`
 }

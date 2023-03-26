@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	// Our configuration info
+	// Conf holds our configuration info
 	Conf TomlConfig
 )
 

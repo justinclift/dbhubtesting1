@@ -95,7 +95,7 @@ func main() {
 
 	// Query the remote server
 	// FIXME: Add a (reasonable) test for blob values
-	r, err := db.Query("default", dbName, dbhub.Identifier{}, false,
+	r, err := db.Query(Conf.Api.User, dbName, dbhub.Identifier{}, false,
 		`SELECT table1.Name, table2.value
 			FROM table1 JOIN table2
 			USING (id)
@@ -107,7 +107,7 @@ func main() {
 	fmt.Println()
 
 	// Retrieve the list of tables in a remote standard database
-	tables, err := db.Tables("default", dbName, dbhub.Identifier{})
+	tables, err := db.Tables(Conf.Api.User, dbName, dbhub.Identifier{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -118,7 +118,7 @@ func main() {
 	fmt.Println()
 
 	// Retrieve the list of views in the remote standard database
-	views, err := db.Views("default", dbName, dbhub.Identifier{})
+	views, err := db.Views(Conf.Api.User, dbName, dbhub.Identifier{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -129,7 +129,7 @@ func main() {
 	fmt.Println()
 
 	// Retrieve the list of indexes in the remote standard database
-	indexes, err := db.Indexes("default", dbName, dbhub.Identifier{})
+	indexes, err := db.Indexes(Conf.Api.User, dbName, dbhub.Identifier{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -141,7 +141,7 @@ func main() {
 
 	// Retrieve the column info for a table or view in the remote standard database
 	table := "table1"
-	columns, err := db.Columns("default", dbName, dbhub.Identifier{}, table)
+	columns, err := db.Columns(Conf.Api.User, dbName, dbhub.Identifier{}, table)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -157,7 +157,7 @@ func main() {
 	fmt.Println()
 
 	// Retrieve the remote standard database file
-	dbStream, err := db.Download("default", dbName, dbhub.Identifier{})
+	dbStream, err := db.Download(Conf.Api.User, dbName, dbhub.Identifier{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -183,7 +183,7 @@ func main() {
 
 	// Run Execute() on the remote live database
 	var rows int
-	rows, err = db.Execute("default", liveName, "UPDATE table1 SET Name = 'Testing 1' WHERE id = 1")
+	rows, err = db.Execute(Conf.Api.User, liveName, "UPDATE table1 SET Name = 'Testing 1' WHERE id = 1")
 	if err != nil {
 		log.Fatal(err)
 	}

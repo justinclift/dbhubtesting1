@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/sqlitebrowser/go-dbhub v0.0.0-20200814074320-d370c4872378
+	github.com/sqlitebrowser/go-dbhub v0.1.0
 )
 
 require (
@@ -34,7 +34,7 @@ require (
 	github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d // indirect
 	github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e // indirect
 	github.com/sqlitebrowser/blackfriday v9.0.0+incompatible // indirect
-	github.com/sqlitebrowser/dbhub.io v0.1.0 // indirect
+	github.com/sqlitebrowser/dbhub.io v0.1.1 // indirect
 	github.com/sqlitebrowser/github_flavored_markdown v0.0.0-20190120045821-b8cf8f054e47 // indirect
 	golang.org/x/crypto v0.0.0-20220314234659-1baeb1ce4c0b // indirect
 	golang.org/x/net v0.8.0 // indirect

@@ -1,3 +1,5 @@
 [api]
 api_key = "YOUR_API_KEY_HERE"
 server = ""
+user = "YOUR_USERNAME_HERE"
+verify_cert = true
