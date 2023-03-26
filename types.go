@@ -1,12 +1,13 @@
 package main
 
-// Configuration file
+// TomlConfig is the overall container structure for our config file
 type TomlConfig struct {
 	Api ApiInfo
 }
 
-// Config info for the API server
+// ApiInfo holds configuration info for the API server
 type ApiInfo struct {
-	APIKey string `toml:"api_key"`
-	Server string `toml:"server"`
+	APIKey     string `toml:"api_key"`
+	Server     string `toml:"server"`
+	VerifyCert bool   `toml:"verify_cert"`
 }

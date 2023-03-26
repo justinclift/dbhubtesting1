@@ -24,8 +24,8 @@ func main() {
 	}
 	if Conf.Api.Server != "" {
 		db.ChangeServer(Conf.Api.Server) // If a server was given in our local config, use that instead of the default
-		db.ChangeVerifyServerCert(false)
 	}
+	db.ChangeVerifyServerCert(Conf.Api.VerifyCert)
 
 	// Retrieve the list of standard databases in your account
 	databases, err := db.Databases()
@@ -181,7 +181,13 @@ func main() {
 	}
 	log.Println("Deleted downloaded file")
 
-	// TODO: Run Execute() on the remote live database
+	// Run Execute() on the remote live database
+	var rows int
+	rows, err = db.Execute("default", liveName, "UPDATE table1 SET Name = 'Testing 1' WHERE id = 1")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Number of rows changed by the Execute statement: %d", rows)
 
 	// Remove the uploaded files
 	err = db.Delete(dbName)
